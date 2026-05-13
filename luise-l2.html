@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alles Gute, Luise!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Lora:ital@1&family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #eaddca;
+            --envelope-color: #c2a679;
+            --paper-color: #fffef5;
+            --seal-color: #8b1a1a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #f3e6d5 0%, #eaddca 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Lora', serif;
+            overflow: hidden;
+        }
+
+        .header-section {
+            position: absolute;
+            top: 10%;
+            text-align: center;
+            width: 100%;
+            transition: all 0.8s ease;
+            z-index: 0;
+        }
+
+        .main-name {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: #3d2b1f;
+            margin: 0;
+        }
+
+        .quote {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: #7a634a;
+            text-transform: uppercase;
+            margin-top: 15px;
+        }
+
+        .container {
+            position: relative;
+            width: 400px;
+            height: 260px;
+            perspective: 1500px;
+            margin-top: 50px;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-wrapper:hover {
+            transform: translateY(-5px);
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--envelope-color);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            z-index: 2;
+        }
+
+        .envelope::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            z-index: 5;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-top: 150px solid #b39363;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .seal {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 65px;
+            height: 65px;
+            background: var(--seal-color);
+            border-radius: 50%;
+            z-index: 6;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #d1bc8a;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            transition: all 0.5s ease;
+            border: 1px solid #6d1414;
+        }
+
+        .letter {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            width: 350px;
+            height: 210px;
+            background: var(--paper-color);
+            background-image: linear-gradient(#f0eada 1px, transparent 1px);
+            background-size: 100% 30px;
+            padding: 40px;
+            box-sizing: border-box;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .open .envelope::before {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+
+        .open .seal {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px) scale(0.5);
+        }
+
+        .open .letter {
+            transform: translateY(-340px) scale(1.15);
+            height: 520px;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            overflow-y: auto;
+        }
+
+        .open .header-section {
+            opacity: 0.1;
+            transform: scale(0.9);
+        }
+
+        #text-container {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #2c2c2c;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .emoji-header {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .letter::-webkit-scrollbar { width: 4px; }
+        .letter::-webkit-scrollbar-thumb { background: #d1bc8a; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <h1 class="main-name">Luise</h1>
+        <p class="quote">"Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren."</p>
+    </div>
+
+    <div class="container">
+        <div class="envelope-wrapper" id="wrapper" onclick="toggleLetter()">
+            <div class="seal" id="seal">L</div>
+            <div class="envelope"></div>
+            <div class="letter" id="letter">
+                <div class="emoji-header">⚽ 🏆 💍</div>
+                <div id="text-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const message = "Liebe Luise,\n\nvon der Pike auf hochgearbeitet und heute eine absolute Leistungsträgerin – es hat mich beeindruckt zu sehen, wie souverän du deinen Club und dein Team führst. 🏆\n\nWas ich an dir besonders geschätzt habe, ist deine offene und direkte Art. Du sagst, was du denkst, und setzt dich konsequent ein. Solche Kollegen sind es, die Dinge wirklich verändern und vorantreiben. Behalte dir diesen Biss und deine Ehrlichkeit unbedingt bei! 🚀\n\nEgal ob auf dem Platz für den VfB, im Herzen bei den Bayern oder aktuell bei der Planung deiner Hochzeit: Du regelst die Dinge einfach. Ich bin mir sicher, dass du deinen Weg weiterhin so erfolgreich gehen wirst. ✨\n\nJetzt geht es für dich erst einmal vor den Altar – genieße diesen besonderen Moment! Solltest du danach mal einen fachlichen Rat brauchen oder ich dir irgendwie weiterhelfen können, melde dich jederzeit gerne bei mir.\n\nDu erreichst mich unter: 017622997320. 📞\n\nViel Erfolg für alles, was kommt!\n\nDein David";
+
+        let i = 0;
+        let hasTyped = false;
+        const letterDiv = document.getElementById('letter');
+
+        function toggleLetter() {
+            const wrapper = document.getElementById('wrapper');
+            
+            if(!wrapper.classList.contains('open')) {
+                wrapper.classList.add('open');
+                
+                // VfB & Bayern Farben: Rot und Weiß
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#ff0000', '#ffffff']
+                });
+
+                if(!hasTyped) {
+                    setTimeout(typeWriter, 1000);
+                }
+            } else {
+                wrapper.classList.remove('open');
+            }
+        }
+
+        function typeWriter() {
+            if (i < message.length) {
+                document.getElementById("text-container").innerHTML += message.charAt(i);
+                i++;
+                letterDiv.scrollTop = letterDiv.scrollHeight;
+                setTimeout(typeWriter, 35);
+            } else {
+                hasTyped = true;
+            }
+        }
+    </script>
+</body>
+</html>

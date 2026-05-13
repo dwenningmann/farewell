@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciao Virna!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Lora:ital@1&family=Montserrat:wght@300&display=swap" rel="stylesheet">
+    <!-- Konfetti-Bibliothek (lädt schnell und zuverlässig) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #eaddca;
+            --envelope-color: #c2a679;
+            --paper-color: #fffef5;
+            --seal-color: #8b1a1a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #f3e6d5 0%, #eaddca 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Lora', serif;
+            overflow: hidden;
+        }
+
+        .header-section {
+            position: absolute;
+            top: 10%;
+            text-align: center;
+            width: 100%;
+            transition: all 0.8s ease;
+            z-index: 0;
+        }
+
+        .main-name {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: #3d2b1f;
+            margin: 0;
+        }
+
+        .quote {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: #7a634a;
+            text-transform: uppercase;
+            margin-top: 15px;
+        }
+
+        .container {
+            position: relative;
+            width: 400px;
+            height: 260px;
+            perspective: 1500px;
+            margin-top: 50px;
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-wrapper:hover {
+            transform: translateY(-5px);
+        }
+
+        .envelope {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: var(--envelope-color);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            z-index: 2;
+        }
+
+        .envelope::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            z-index: 5;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-top: 150px solid #b39363;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .seal {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 65px;
+            height: 65px;
+            background: var(--seal-color);
+            border-radius: 50%;
+            z-index: 6;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #d1bc8a;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            transition: all 0.5s ease;
+            border: 1px solid #6d1414;
+        }
+
+        .letter {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            width: 350px;
+            height: 210px;
+            background: var(--paper-color);
+            background-image: linear-gradient(#f0eada 1px, transparent 1px);
+            background-size: 100% 30px;
+            padding: 40px;
+            box-sizing: border-box;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .open .envelope::before {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+
+        .open .seal {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px) scale(0.5);
+        }
+
+        .open .letter {
+            transform: translateY(-340px) scale(1.15);
+            height: 520px;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            overflow-y: auto;
+        }
+
+        .open .header-section {
+            opacity: 0.1;
+            transform: scale(0.9);
+        }
+
+        #text-container {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #2c2c2c;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .emoji-header {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .letter::-webkit-scrollbar { width: 4px; }
+        .letter::-webkit-scrollbar-thumb { background: #d1bc8a; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <h1 class="main-name">Virna</h1>
+        <p class="quote">"Arrivederci significa: Ci rivedremo."</p>
+    </div>
+
+    <div class="container">
+        <div class="envelope-wrapper" id="wrapper" onclick="toggleLetter()">
+            <div class="seal" id="seal">V</div>
+            <div class="envelope"></div>
+            <div class="letter" id="letter">
+                <div class="emoji-header"✨ 🏠</div>
+                <div id="text-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const message = "Cara Virna,\n\ndu bist die wahre Anima Buona – die gute Seele – in unserem Team!✨ Mit deinem italienischen Flair und deiner immer positiven Art hast du nicht nur die Verwaltung fest im Griff, sondern warst für mich eine ganz besondere Kollegin.\n\nBesonders bewundere ich, wie du selbst die \"komischsten\" Anliegen der Mitglieder mit einem Lächeln gelöst hast. Und nach der gefühlt x-ten Systemmigration wissen wir beide: Dich kann fachlich absolut nichts mehr schocken! 💻💪 Es war mir eine absolute Freude, mit dir zusammenzuarbeiten.\n\nFür dich und deinen Mann beginnt mit dem Hausbau jetzt ein großes Abenteuer. Ich wünsche euch dafür viel Erfolg, starke Nerven und dass euer neues Heim bald genau so strahlt wie du! 🏠🔨 Behalte dir dein Lachen und dein Temperament unbedingt bei.\n\nSolltest du bei der Arbeit doch mal fachliche Fragen haben oder einen Rat brauchen, zögere nicht: Ich habe immer ein offenes Ohr für dich.\n\nDu erreichst mich unter: 017622997320. 📞\n\nTanti saluti e grazie di cuore,\n\nDein David";
+
+        let i = 0;
+        let hasTyped = false;
+        const letterDiv = document.getElementById('letter');
+
+        function toggleLetter() {
+            const wrapper = document.getElementById('wrapper');
+            
+            if(!wrapper.classList.contains('open')) {
+                wrapper.classList.add('open');
+                
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#008C45', '#ffffff', '#CD212A']
+                });
+
+                if(!hasTyped) {
+                    setTimeout(typeWriter, 1000);
+                }
+            } else {
+                wrapper.classList.remove('open');
+            }
+        }
+
+        function typeWriter() {
+            if (i < message.length) {
+                document.getElementById("text-container").innerHTML += message.charAt(i);
+                i++;
+                letterDiv.scrollTop = letterDiv.scrollHeight;
+                setTimeout(typeWriter, 35);
+            } else {
+                hasTyped = true;
+            }
+        }
+    </script>
+</body>
+</html>
